@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Persistence;
+using Application.Activities;
 
 namespace API
 {
@@ -31,11 +26,13 @@ namespace API
             {
                 opt.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
             });
-             services.AddCors(opt=>
-              opt.AddPolicy("CorsPolicy", policy =>{
-                policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000"); //Allows us to get access to any call from any method and header as long as it is from this origin.
-                })
-           );
+            services.AddCors(opt =>
+             opt.AddPolicy("CorsPolicy", policy =>
+             {
+                 policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000"); //Allows us to get access to any call from any method and header as long as it is from this origin.
+              })
+          );
+            services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddControllers();
 
         }
@@ -48,13 +45,13 @@ namespace API
                 app.UseDeveloperExceptionPage();
             }
 
-          //  app.UseHttpsRedirection();
+            //  app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthorization();
-         
-           app.UseCors("CorsPolicy");
+
+            app.UseCors("CorsPolicy");
 
             app.UseEndpoints(endpoints =>
             {
