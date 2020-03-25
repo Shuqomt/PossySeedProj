@@ -1,70 +1,31 @@
-import React, { useState, useEffect, Fragment } from "react";
-import axios from "axios";
+import React, { useEffect, Fragment, useContext } from "react";
 import { Container } from "semantic-ui-react";
-import { IActivity } from "../models/activity";
 import NavBar from "../../features/nav/NavBar";
-import { ActivityDashboard } from "../../features/activities/dashboard/ActivityDashboard";
+import LoadingComponent from "./LoadingComponent";
+import ActivityStore from "../stores/activityStore";
+import { observer } from "mobx-react-lite";
+import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
 
 //Define state by passing the type parameter
 const App = () => {
-  const [activities, setActivities] = useState<IActivity[]>([]);
-  const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(
-    null
-  );
+  const activityStore = useContext(ActivityStore);
 
-  const [editMode, setEditMode] = useState(false); 
-  const handleSelectActivity = (id: string) => {
-    setSelectedActivity(activities.filter(a => a.id === id)[0]);
-    setEditMode(false);
-  };
-
-  const handleOpenCreateForm = () =>{ 
-    setSelectedActivity(null);
-    setEditMode(true);
-  }
-
-  const handleCreateActivity = (activity: IActivity) => {
-    setActivities([...activities, activity])
-    setSelectedActivity(activity);
-    setEditMode(false);
-  }
-
-  const handleEditActivity = (activity: IActivity) => {
-    setActivities([...activities.filter(a => a.id !== activity.id), activity]);
-    setSelectedActivity(activity);
-    setEditMode(false);
-  }
- 
-  const handleDeleteActivity= (id:string)=>{
-    setActivities([...activities.filter(a=> a.id !==id)]) //return all ids that do not match the selected deleted id.
-  }
-//where we get activities
+  //where we get activities
   useEffect(() => {
-    axios 
-      .get<IActivity[]>("http://localhost:5000/api/activities")
-      .then(response => {
-        let activities: IActivity[] = [];
-        response.data.forEach(activity =>{
-          activity.date = activity.date.split('.')[0] //splits string into substrings
-      activities.push(activity);
-        })
-        setActivities(activities);
-      });
-  }, []);
+    //use method from store to bring in activities
+    activityStore.loadActivities();
+  }, [activityStore]); //dependency array for activitystore.loadactivity function
 
+  if (activityStore.loadingInitial)
+    return <LoadingComponent content="Loading Activities..." />;
   return (
     <Fragment>
-      <NavBar openCreateForm={handleOpenCreateForm}/>
+      <NavBar />
       <Container style={{ marginTop: "7em" }}>
-        <ActivityDashboard activities={activities} selectActivity={handleSelectActivity} 
-        selectedActivity={selectedActivity!} editMode={editMode} setEditMode={setEditMode} setSelectedActivity={setSelectedActivity}
-        createActivity={handleCreateActivity}
-        editActivity={handleEditActivity}
-        deleteActivity={handleDeleteActivity}
-        />
+        <ActivityDashboard />
       </Container>
     </Fragment>
   );
 };
 
-export default App;
+export default observer(App);
