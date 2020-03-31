@@ -17,7 +17,6 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
     createActivity,
     editActivity,
     submitting,
-    cancelFormOpen,
     activity: initialFormState,
     loadActivity,
     clearActivity
@@ -36,7 +35,7 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
 
   useEffect(() => {
     //runs every single time our component renders. only want to run when editing
-    if (match.params.id && activity.id.length == 0) {
+    if (match.params.id && activity.id.length === 0) {
       loadActivity(match.params.id).then(
         () => initialFormState && setActivity(initialFormState)
       );
@@ -114,7 +113,7 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
         />
         <Button
           floated="right"
-          onClick={cancelFormOpen}
+          onClick={()=> history.push('/activities')}
           type="button"
           content="Cancel"
         />
