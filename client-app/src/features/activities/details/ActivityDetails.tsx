@@ -15,14 +15,15 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
   const activityStore = useContext(ActivityStore);
   const {
     activity,
-    openEditForm,
-    cancelSelectedActivity,
     loadActivity,
     loadingInitial
   } = activityStore;
   useEffect(() => {
-    loadActivity(match.params.id);
-  }, [loadActivity]); //Run only once so pass an array of dependencies.
+    if(match.params.id){
+      loadActivity(match.params.id);
+
+    }
+  }, [loadActivity, match.params.id]); //Run only once so pass an array of dependencies.
 
   if (loadingInitial || !activity)
     return <LoadingComponent content="Loading Activity..." />;

@@ -8,7 +8,7 @@ configure({ enforceActions: "always" });
 class ActivityStore {
   @observable activityRegistry = new Map();
   @observable activities: IActivity[] = [];
-  @observable activity: IActivity | null = null;
+  @observable activity: IActivity | undefined;
   @observable loadingInitial = false;
   @observable editMode = false;
   @observable submitting = false;
@@ -76,7 +76,7 @@ class ActivityStore {
   };
 
   @action clearActivity = () =>{
-    this.activity = null;
+    this.activity = undefined;
   }
 
   // create a helper method
@@ -129,7 +129,7 @@ class ActivityStore {
   };
 
   @action cancelSelectedActivity = () => {
-    this.activity = null;
+    this.activity = undefined;
   };
   @action selectActivity = (id: string) => {
     this.activity = this.activityRegistry.get(id);
@@ -141,7 +141,7 @@ class ActivityStore {
 
   @action openCreateForm = () => {
     this.editMode = true;
-    this.activity = null;
+    this.activity = undefined;
   };
 }
 

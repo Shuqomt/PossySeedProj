@@ -10,7 +10,7 @@ interface DetailParams {
   id: string;
 }
 const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
-  match
+  match, history, 
 }) => {
   const activityStore = useContext(ActivityStore);
   const {
@@ -23,18 +23,6 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
     clearActivity
   } = activityStore;
 
-  useEffect(() => {
-    //runs every single time our component renders. only want to run when editing
-    if (match.params.id) {
-      loadActivity(match.params.id).then(
-        () => initialFormState && setActivity(initialFormState)
-      );
-    }
-    return () => {
-      clearActivity();
-    };
-  });
-
   const [activity, setActivity] = useState<IActivity>({
     //initial state -> load activity then setActivity.
     id: "",
@@ -46,15 +34,27 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParams>> = ({
     venue: ""
   });
 
+  useEffect(() => {
+    //runs every single time our component renders. only want to run when editing
+    if (match.params.id && activity.id.length == 0) {
+      loadActivity(match.params.id).then(
+        () => initialFormState && setActivity(initialFormState)
+      );
+    }
+    return(()=>{
+      clearActivity()
+    })
+  }, [loadActivity, match.params.id, clearActivity, initialFormState, activity.id.length]);
+
   const handleSubmit = () => {
     if (activity.id.length === 0) {
       let newActivity = {
         ...activity,
         id: uuid()
       };
-      createActivity(newActivity);
+      createActivity(newActivity).then(()=> history.push(`/activities/${newActivity.id}`))
     } else {
-      editActivity(activity); //from the store.
+      editActivity(activity).then(()=> history.push(`/activities/${activity.id}`)); //from the store.
     }
   };
   const handleInputChange = (
